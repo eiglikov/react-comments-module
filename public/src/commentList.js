@@ -10,15 +10,13 @@ let CommentBox = React.createClass({
       cache: false,
       success: function(data) {
         this.setState({data: data});
+        console.log(this.state.data);
+
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
-  },
-  componentDidMount: function() {
-    this.loadCommentsFromServer();
-    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
   },
   render: function() {
     return (
@@ -26,23 +24,26 @@ let CommentBox = React.createClass({
         <div className="jumbotron">
           <div class="container">
             <h2>Comments</h2>
-            <CommentList data={this.state.data} />
+
           </div>
         </div>
 
-        <CommentList data={this.props.data} />
+        <CommentList data={this.state.data} />
         <CommentForm />
       </div>
     );
+  },
+  componentDidMount: function() {
+    this.loadCommentsFromServer();
+    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
   }
-
 
 });
 
 // CommentList
 let CommentList = React.createClass({
   render: function() {
-    console.log(this.props.data);
+    console.log(this);
     var commentNodes = this.props.data.map(function(comment) {
       return (
         <Comment author={comment.author} key={comment.id}>
@@ -83,7 +84,6 @@ let Comment = React.createClass({
         <h3 className="commentAuthor">
           {this.props.author}
         </h3>
-        {console.log(data)}
         <span dangerouslySetInnerHTML={this.rawMarkup()} />
       </div>
     );
@@ -93,7 +93,7 @@ let Comment = React.createClass({
 
 
 ReactDOM.render(
-  <CommentBox url="/api/comments" pollInterval={2000}/>,
+  <CommentBox url='/api/comments' pollInterval={2000}/>,
   document.getElementById('content')
 );
 
