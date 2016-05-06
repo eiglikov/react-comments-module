@@ -18,6 +18,9 @@ let CommentBox = React.createClass({
       }.bind(this)
     });
   },
+  handleCommentSubmit: function(comment) {
+   // TODO: submit to the server and refresh the list
+ },
   render: function() {
     return (
       <div className="commentBox">
@@ -29,7 +32,7 @@ let CommentBox = React.createClass({
         </div>
 
         <CommentList data={this.state.data} />
-        <CommentForm />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
   },
@@ -61,11 +64,45 @@ let CommentList = React.createClass({
 
 // CommentForm
 var CommentForm = React.createClass({
+  getInitialState: function() {
+    return {author: '', text: ''};
+  },
+  handleAuthorChange: function(e) {
+    this.setState({author: e.target.value});
+  },
+  handleTextChange: function(e) {
+    this.setState({text: e.target.value});
+  },
+
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var author = this.state.author.trim();
+    var text = this.state.text.trim();
+    if (!text || !author) {
+      return;
+    }
+    // TODO: send request to the server
+    this.setState({author: '', text: ''});
+  },
+
   render: function() {
     return (
-      <div className="commentForm">
-        Hello, world! I am a CommentForm.
-      </div>
+      <form className="commentForm form-horizontal col-md-6" role="form" onSubmit={this.handleSubmit}>
+        <div className="form-group">
+          <label className="control-label" htmlFor="name">Name:</label>
+          <input type="text" className="form-control" id="name" placeholder="Your name" value={this.state.author} onChange={this.handleAuthorChange}/>
+        </div>
+
+        <div className="form-group">
+          <label className="control-label" htmlFor="comment">Comment:</label>
+          <textarea type="text" className="form-control" id="comment" placeholder="Comment" value={this.state.text}
+            onChange={this.handleTextChange}/>
+        </div>
+        <div className="form-group">
+          <button type="submit" className="btn btn-primary">Submit</button>
+        </div>
+      </form>
+
     );
   }
 });
