@@ -1,3 +1,5 @@
+const ReactF1 = require('react-f1');
+
 // CommentBox
 let CommentBox = React.createClass({
   getInitialState: function(){
