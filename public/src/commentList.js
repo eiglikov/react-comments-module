@@ -130,6 +130,16 @@ var CommentForm = React.createClass({
 
 // Comment
 let Comment = React.createClass({
+  getInitialState: function() {
+    return {author: '', text: ''};
+  },
+  deleteComment: function(comment) {
+    {console.log(this.props)};
+    {console.log(comment);}
+    this.props.data.splice(this.state.props.indexOf(comment), 1);
+    setState(this.props);
+  },
+
   rawMarkup: function() {
     var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
     return { __html: rawMarkup };
@@ -142,6 +152,7 @@ let Comment = React.createClass({
           {this.props.author}
         </h3>
         <span dangerouslySetInnerHTML={this.rawMarkup()} />
+        <button onClick={this.deleteComment}>Delete</button>
       </div>
     );
   }
