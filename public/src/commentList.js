@@ -41,6 +41,19 @@ let CommentBox = React.createClass({
       }.bind(this)
     });
   },
+
+  deleteComment: function(comment) {
+    {console.log('CommentBox');}
+    {console.log(comment);}
+    {console.log(this.state.data);}
+    this.state.data.splice(comment, 1);
+    // setState({data: comment});
+
+    // this.setState({
+    //   data[0]: comment
+    // });
+  },
+
   render: function() {
     return (
       <div className="commentBox">
@@ -51,7 +64,7 @@ let CommentBox = React.createClass({
           </div>
         </div>
 
-        <CommentList data={this.state.data} />
+        <CommentList data={this.state.data} handleDelete={this.deleteComment}/>
         <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
@@ -65,11 +78,15 @@ let CommentBox = React.createClass({
 
 // CommentList
 let CommentList = React.createClass({
+  getInitialState: function(){
+    return {data: []};
+  },
+
   render: function() {
     // console.log(this);
-    var commentNodes = this.props.data.map(function(comment) {
+    var commentNodes = this.props.data.map((comment) => {
       return (
-        <Comment author={comment.author} key={comment.id}>
+        <Comment author={comment.author} key={comment.id} handleDelete={this.props.handleDelete}>
           {comment.text}
         </Comment>
       );
@@ -81,6 +98,30 @@ let CommentList = React.createClass({
     );
   }
 });
+
+// Comment
+let Comment = React.createClass({
+
+  rawMarkup: function() {
+    var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
+    return { __html: rawMarkup };
+  },
+
+  render: function() {
+    // console.log(this);
+    return (
+      <div className="comment">
+        <h3 className="commentAuthor">
+          {this.props.author}
+        </h3>
+        <span dangerouslySetInnerHTML={this.rawMarkup()} />
+        <button className='btn btn-default btn-danger' onClick={this.props.handleDelete}>Delete</button>
+      </div>
+    );
+  }
+});
+
+
 
 // CommentForm
 var CommentForm = React.createClass({
@@ -127,36 +168,6 @@ var CommentForm = React.createClass({
   }
 });
 
-
-// Comment
-let Comment = React.createClass({
-  getInitialState: function() {
-    return {author: '', text: ''};
-  },
-  deleteComment: function(comment) {
-    {console.log(this.props)};
-    {console.log(comment);}
-    this.props.data.splice(this.state.props.indexOf(comment), 1);
-    setState(this.props);
-  },
-
-  rawMarkup: function() {
-    var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
-    return { __html: rawMarkup };
-  },
-
-  render: function() {
-    return (
-      <div className="comment">
-        <h3 className="commentAuthor">
-          {this.props.author}
-        </h3>
-        <span dangerouslySetInnerHTML={this.rawMarkup()} />
-        <button onClick={this.deleteComment}>Delete</button>
-      </div>
-    );
-  }
-});
 
 
 
