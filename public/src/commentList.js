@@ -44,10 +44,18 @@ let CommentBox = React.createClass({
 
   deleteComment: function(comment) {
     {console.log('CommentBox');}
-    {console.log(comment);}
-    {console.log(this.state.data);}
-    this.state.data.splice(comment, 1);
-    // setState({data: comment});
+    // {console.log(comment);}
+    // {console.log(this.state.data);}
+    // // {console.log(this.state.data.splice(comment, 1));}
+    // {console.log(this.state.data);}
+
+    this.state.data.forEach((comt, i)=>{
+      console.log(comt == comment);
+      if (comt.id == comment.id)
+        this.state.data.splice(i, 1)
+    })
+    // this.state.data.splice(comment, 1);
+    this.setState({data: this.state.data});
 
     // this.setState({
     //   data[0]: comment
@@ -71,7 +79,7 @@ let CommentBox = React.createClass({
   },
   componentDidMount: function() {
     this.loadCommentsFromServer();
-    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+    // setInterval(this.loadCommentsFromServer, this.props.pollInterval);
   }
 
 });
@@ -86,7 +94,7 @@ let CommentList = React.createClass({
     // console.log(this);
     var commentNodes = this.props.data.map((comment) => {
       return (
-        <Comment author={comment.author} key={comment.id} handleDelete={this.props.handleDelete}>
+        <Comment author={comment.author} id={comment.id} handleDelete={()=>{this.props.handleDelete(comment)}}>
           {comment.text}
         </Comment>
       );
@@ -106,7 +114,12 @@ let Comment = React.createClass({
     var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
     return { __html: rawMarkup };
   },
-
+  deleteComment: function(comment) {
+    // console.log(this.props.id);
+    // console.log(this.props.handleDelete);
+    console.log('Comment');
+    this.props.handleDelete();
+  },
   render: function() {
     // console.log(this);
     return (
@@ -115,7 +128,7 @@ let Comment = React.createClass({
           {this.props.author}
         </h3>
         <span dangerouslySetInnerHTML={this.rawMarkup()} />
-        <button className='btn btn-default btn-danger' onClick={this.props.handleDelete}>Delete</button>
+        <button className='btn btn-default btn-danger' onClick={this.deleteComment}>Delete</button>
       </div>
     );
   }
