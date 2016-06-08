@@ -1,3 +1,4 @@
+'use strict';
 // CommentBox
 let CommentBox = React.createClass({
   getInitialState: function(){
@@ -71,7 +72,7 @@ let CommentBox = React.createClass({
         this.state.data.splice(i, 1);
         console.log(comment);
         this.setState({data: this.state.data});
-        
+
         this.removeCommentFromDb(comment);
       }
     })
