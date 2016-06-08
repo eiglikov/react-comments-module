@@ -1,14 +1,14 @@
 /**
- * This file provided by Facebook is for non-commercial testing and evaluation
- * purposes only. Facebook reserves all rights not expressly granted.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+* This file provided by Facebook is for non-commercial testing and evaluation
+* purposes only. Facebook reserves all rights not expressly granted.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+* FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+* ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
 var fs = require('fs');
 var path = require('path');
@@ -26,13 +26,13 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Additional middleware which will set headers that we need on each request.
 app.use(function(req, res, next) {
-    // Set permissive CORS header - this allows this server to be used only as
-    // an API server in conjunction with something like webpack-dev-server.
-    res.setHeader('Access-Control-Allow-Origin', '*');
+  // Set permissive CORS header - this allows this server to be used only as
+  // an API server in conjunction with something like webpack-dev-server.
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
-    // Disable caching so we'll always get the latest comments.
-    res.setHeader('Cache-Control', 'no-cache');
-    next();
+  // Disable caching so we'll always get the latest comments.
+  res.setHeader('Cache-Control', 'no-cache');
+  next();
 });
 
 app.get('/api/comments', function(req, res) {
@@ -69,6 +69,50 @@ app.post('/api/comments', function(req, res) {
       res.json(comments);
     });
   });
+});
+
+app.delete('/api/comments', function(req, res) {
+  // var id = req.params.id;
+  fs.readFile(COMMENTS_FILE, function(err, data) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    var comments = JSON.parse(data);
+    var val = req.body.id;
+    console.log('SERVER DELETE');
+
+    comments.forEach((comt, i) => {
+      // console.log(comt.id == val);
+      if (comt.id == val) {
+        console.log('Before ---->\n');
+        console.log(comments);
+        console.log(comments[i]);
+        // console.log(`${comments[i]} - DATA`);
+        // delete comments[i];
+        comments.splice(i, 1);
+
+        // comments.remove(i)
+        console.log('AFTER ---->\n');
+        console.log(comments);
+
+        console.log(`Data ${comt.author} deleted`);
+
+
+        fs.writeFile(COMMENTS_FILE, JSON.stringify(comments), function(err) {
+          if (err) {
+            console.error(err);
+            process.exit(1);
+          }
+          console.log(comments);
+          res.json(comments);
+        });
+      }
+    });
+  });
+
+
+
 });
 
 

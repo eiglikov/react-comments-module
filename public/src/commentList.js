@@ -41,6 +41,23 @@ let CommentBox = React.createClass({
       }.bind(this)
     });
   },
+  removeCommentFromDb: function(comment) {
+    var comments = this.state.data;
+
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      type: 'DELETE',
+      data: comment,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err){
+        this.setState({data: comments});
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
 
   deleteComment: function(comment) {
     {console.log('CommentBox');}
@@ -50,13 +67,17 @@ let CommentBox = React.createClass({
     // {console.log(this.state.data);}
 
     this.state.data.forEach((comt, i)=>{
-      console.log(comt == comment);
-      if (comt.id == comment.id)
-        this.state.data.splice(i, 1)
+      if (comt.id == comment.id){
+        this.state.data.splice(i, 1);
+        console.log(comment);
+        this.setState({data: this.state.data});
+        
+        this.removeCommentFromDb(comment);
+      }
     })
     // this.state.data.splice(comment, 1);
-    this.setState({data: this.state.data});
-
+    // this.setState({data: this.state.data});
+    // this.handleCommentSubmit(this.state.data);
     // this.setState({
     //   data[0]: comment
     // });
