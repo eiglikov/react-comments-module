@@ -4,8 +4,8 @@ var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/Comments');
 
+mongoose.connect('mongodb://localhost/Comments');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
@@ -13,29 +13,23 @@ var commentSchema = null,
 CommentModel = null;
 
 db.once('open', function() {
-  console.log('DATABASE!');
+  console.log('connected to DB!');
 
   commentSchema = mongoose.Schema({
     author: String,
     text:   String
   });
-
-  var CommentModel = mongoose.model('Comment', commentSchema);
-  var first = new CommentModel({author: 'Erik', text: 'AAAAA!'});
-  console.log(first);
-  first.save(function (err, first) {
-    if (err) return console.error(err);
-    console.log('INSERTED!');
-  });
-
-
-  CommentModel.find(function (err, kittens) {
-    if (err) return console.error(err);
-    console.log(kittens);
-  });
-  // CommentModel.remove({});
-
+  CommentModel = mongoose.model('Comment', commentSchema);
 });
+
+// var first = new CommentModel({author: 'Erik', text: 'AAAAA!'});
+// console.log(first);
+// first.save(function (err, first) {
+//   if (err) return console.error(err);
+//   console.log('INSERTED!');
+
+// CommentModel.remove({});
+// });
 
 var app = express();
 
@@ -59,83 +53,77 @@ app.use(function(req, res, next) {
 });
 
 app.get('/api/comments', function(req, res) {
-  fs.readFile(COMMENTS_FILE, function(err, data) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    res.json(JSON.parse(data));
+  CommentModel.find(function (err, comments) {
+    if (err) return console.error(err);
+    console.log(comments);
+    res.send(comments);
   });
 });
 
 app.post('/api/comments', function(req, res) {
-  fs.readFile(COMMENTS_FILE, function(err, data) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    var comments = JSON.parse(data);
-    // NOTE: In a real implementation, we would likely rely on a database or
-    // some other approach (e.g. UUIDs) to ensure a globally unique id. We'll
-    // treat Date.now() as unique-enough for our purposes.
-    var newComment = {
-      id: Date.now(),
-      author: req.body.author,
-      text: req.body.text,
-    };
-    comments.push(newComment);
-    fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function(err) {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      res.json(comments);
-    });
+  var newComment = new CommentModel({
+    author: req.body.author,
+    text: req.body.text,
+  });
+
+  newComment.save(function(err, comment) {
+    if (err) return console.error(err);
+    console.log(comment);
   });
 });
 
+
+
 app.delete('/api/comments', function(req, res) {
-  // var id = req.params.id;
-  fs.readFile(COMMENTS_FILE, function(err, data) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    var comments = JSON.parse(data);
-    var val = req.body.id;
-    console.log('SERVER DELETE');
+  console.log('SERVER DELETE');
 
-    comments.forEach((comt, i) => {
-      // console.log(comt.id == val);
-      if (comt.id == val) {
-        console.log('Before ---->\n');
-        console.log(comments);
-        console.log(comments[i]);
-        // console.log(`${comments[i]} - DATA`);
-        // delete comments[i];
-        comments.splice(i, 1);
+  var id = req.params;
+  console.log(id);
+  // CommentModel.findById(id, function(err, comment) {
+  //   if(err) return console.error(err);
+  //   console.log(comment);
+  //   comment.remove(function(err) {
+  //     if(err) return console.error(err);
+  //   });
+  // });
 
-        // comments.remove(i)
-        console.log('AFTER ---->\n');
-        console.log(comments);
-
-        console.log(`Data ${comt.author} deleted`);
-
-
-        fs.writeFile(COMMENTS_FILE, JSON.stringify(comments), function(err) {
-          if (err) {
-            console.error(err);
-            process.exit(1);
-          }
-          console.log(comments);
-          res.json(comments);
-        });
-      }
-    });
-  });
-
-
-
+  // fs.readFile(COMMENTS_FILE, function(err, data) {
+  //   if (err) {
+  //     console.error(err);
+  //     process.exit(1);
+  //   }
+  //   var comments = JSON.parse(data);
+  //   var val = req.body.id;
+  //
+  //   comments.forEach((comt, i) => {
+  //
+  //
+  //     if (comt.id == val) {
+  //       console.log('Before ---->\n');
+  //       console.log(comments);
+  //       console.log(comments[i]);
+  //       // console.log(`${comments[i]} - DATA`);
+  //       // delete comments[i];
+  //       comments.splice(i, 1);
+  //
+  //       // comments.remove(i)
+  //       console.log('AFTER ---->\n');
+  //       console.log(comments);
+  //
+  //       console.log(`Data ${comt.author} deleted`);
+  //
+  //
+  //       fs.writeFile(COMMENTS_FILE, JSON.stringify(comments), function(err) {
+  //         if (err) {
+  //           console.error(err);
+  //           process.exit(1);
+  //         }
+  //         console.log(comments);
+  //         res.json(comments);
+  //       });
+  //     }
+  //   });
+  // });
 });
 
 

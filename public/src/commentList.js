@@ -16,7 +16,10 @@ let CommentBox = React.createClass({
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
       }.bind(this)
+
+    // this.serverRequest = $.get(this.props)
     });
+
   },
   handleCommentSubmit: function(comment) {
     var comments = this.state.data;
@@ -42,14 +45,15 @@ let CommentBox = React.createClass({
       }.bind(this)
     });
   },
-  removeCommentFromDb: function(comment) {
-    var comments = this.state.data;
 
+
+  removeCommentFromDb: function(id) {
+    var comments = this.state.data;
     $.ajax({
       url: this.props.url,
       dataType: 'json',
       type: 'DELETE',
-      data: comment,
+      data: id,
       success: function(data) {
         this.setState({data: data});
       }.bind(this),
@@ -73,7 +77,7 @@ let CommentBox = React.createClass({
         console.log(comment);
         this.setState({data: this.state.data});
 
-        this.removeCommentFromDb(comment);
+        this.removeCommentFromDb(comment.id);
       }
     })
     // this.state.data.splice(comment, 1);
