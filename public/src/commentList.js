@@ -98,13 +98,16 @@ let CommentBox = React.createClass({
     return (
       <div className="commentBox">
         <div className="jumbotron">
-          <div class="container">
-            <h2>Comments</h2>
+          <div className="container">
+            <h2><i className="glyphicon glyphicon-comment" ></i> Comments</h2>
 
           </div>
         </div>
 
-        <CommentList data={this.state.data} handleDelete={this.deleteComment} handleEdit={this.handleEdit}
+        <CommentList
+          data={this.state.data} 
+          handleDelete={this.deleteComment}
+          handleEdit={this.handleEdit}
           />
         <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
