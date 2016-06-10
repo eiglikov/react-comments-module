@@ -22,14 +22,7 @@ db.once('open', function() {
   CommentModel = mongoose.model('Comment', commentSchema);
 });
 
-// var first = new CommentModel({author: 'Erik', text: 'AAAAA!'});
-// console.log(first);
-// first.save(function (err, first) {
-//   if (err) return console.error(err);
-//   console.log('INSERTED!');
 
-// CommentModel.remove({});
-// });
 
 var app = express();
 
@@ -55,7 +48,7 @@ app.use(function(req, res, next) {
 app.get('/api/comments', function(req, res) {
   CommentModel.find(function (err, comments) {
     if (err) return console.error(err);
-    console.log(comments);
+    // console.log(comments);
     res.send(comments);
   });
 });
@@ -70,61 +63,36 @@ app.post('/api/comments', function(req, res) {
     if (err) return console.error(err);
     console.log(comment);
   });
+
 });
 
 
 
 app.delete('/api/comments', function(req, res) {
   console.log('SERVER DELETE');
+  var id = req.body._id;
+  console.log(req.body._id);
 
-  var id = req.params;
-  console.log(id);
-  // CommentModel.findById(id, function(err, comment) {
-  //   if(err) return console.error(err);
-  //   console.log(comment);
-  //   comment.remove(function(err) {
-  //     if(err) return console.error(err);
-  //   });
-  // });
-
-  // fs.readFile(COMMENTS_FILE, function(err, data) {
-  //   if (err) {
-  //     console.error(err);
-  //     process.exit(1);
-  //   }
-  //   var comments = JSON.parse(data);
-  //   var val = req.body.id;
-  //
-  //   comments.forEach((comt, i) => {
-  //
-  //
-  //     if (comt.id == val) {
-  //       console.log('Before ---->\n');
-  //       console.log(comments);
-  //       console.log(comments[i]);
-  //       // console.log(`${comments[i]} - DATA`);
-  //       // delete comments[i];
-  //       comments.splice(i, 1);
-  //
-  //       // comments.remove(i)
-  //       console.log('AFTER ---->\n');
-  //       console.log(comments);
-  //
-  //       console.log(`Data ${comt.author} deleted`);
-  //
-  //
-  //       fs.writeFile(COMMENTS_FILE, JSON.stringify(comments), function(err) {
-  //         if (err) {
-  //           console.error(err);
-  //           process.exit(1);
-  //         }
-  //         console.log(comments);
-  //         res.json(comments);
-  //       });
-  //     }
-  //   });
-  // });
+  CommentModel.findById(id, function(err, comment) {
+    if(err) return console.error(err);
+    console.log('FOUND THAT SHIT!');
+    console.log(comment);
+  }).remove(function(err) {
+    if(err) return console.error(err);
+  }).exec();
 });
+
+app.put('/api/comments', function(req, res) {
+  console.log('SERVER PUT');
+  console.log(req.body);
+
+  var query = {'author': req.body.author, 'text': req.body.text};
+  CommentModel.findOneAndUpdate(query, {upsert:true}, function(err, doc){
+    if (err) return res.send(500, { error: err });
+    return res.send("succesfully saved");
+  });
+});
+
 
 
 app.listen(app.get('port'), function() {
