@@ -11,7 +11,12 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "watch:server"	: "nodemon --harmony server.js",
+    "watch:client"	: "live-reload --port 3000 ./",
+    "watch" 		    : "npm run watch:server & npm run watch:client",
+    "deploy:complex" : "./longdeploy.sh"
+
   },
   "repository": {
     "type": "git",
@@ -23,10 +28,6 @@
     "comment",
     "example"
   ],
-  "author": "petehunt",
-  "bugs": {
-    "url": "https://github.com/reactjs/react-tutorial/issues"
-  },
   "homepage": "https://github.com/reactjs/react-tutorial",
   "engines": {
     "node": "0.12.x"

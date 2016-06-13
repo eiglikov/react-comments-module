@@ -1,4 +1,3 @@
-
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
@@ -87,9 +86,9 @@ app.put('/api/comments', function(req, res) {
   console.log(req.body);
 
   var query = {'author': req.body.author, 'text': req.body.text};
-  CommentModel.findOneAndUpdate(query, {upsert:true}, function(err, doc){
+  CommentModel.findOneAndUpdate(query, function(err, doc){
     if (err) return res.send(500, { error: err });
-    return res.send("succesfully saved");
+    return console.log("succesfully saved");
   });
 });
 

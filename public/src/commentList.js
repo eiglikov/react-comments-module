@@ -77,7 +77,9 @@ let CommentBox = React.createClass({
       }
     })
   },
+
   handleEdit: function(comment) {
+    console.log('Edit');
     console.log(comment);
     var comments = this.state.data;
     $.ajax({
@@ -86,26 +88,31 @@ let CommentBox = React.createClass({
       type: 'PUT',
       data: comment,
       success: function(data) {
-        this.setState({data: data});
+        console.log(comment);
+        this.setState({data: comments});
       }.bind(this),
       error: function(xhr, status, err){
-        this.setState({data: comments});
+
+        // this.setState({data: this.data});
         console.error(this.props.url, status, err.toString());
+
+
       }.bind(this)
     });
   },
+
+
   render: function() {
     return (
-      <div className="commentBox">
+      <div className="commentBox col-md-10">
         <div className="jumbotron">
-          <div className="container">
-            <h2><i className="glyphicon glyphicon-comment" ></i> Comments</h2>
 
-          </div>
+            <h2>Comments <i className="glyphicon glyphicon-comment" ></i> </h2>
+
         </div>
 
         <CommentList
-          data={this.state.data} 
+          data={this.state.data}
           handleDelete={this.deleteComment}
           handleEdit={this.handleEdit}
           />
@@ -149,6 +156,15 @@ let CommentList = React.createClass({
 
 // Comment
 let Comment = React.createClass({
+  getInitialState: function() {
+    return {author: this.props.author, text: this.props.text};
+  },
+  handleAuthorChange: function(e) {
+    this.setState({author: e.target.value});
+  },
+  handleTextChange: function(e) {
+    this.setState({text: e.target.value});
+  },
 
   rawMarkup: function(text) {
     var rawMarkup = marked(text.toString(), {sanitize: true});
@@ -158,24 +174,71 @@ let Comment = React.createClass({
   deleteComment: function(comment) {
     // console.log(this.props.id);
     console.log('Delete');
-    this.props.handleDelete();
+    if (confirm('Delete this comment?'))
+      this.props.handleDelete();
+      else {
+        return;
+      }
   },
 
-  updateComment: function(comment) {
+  editComment: function(comment) {
     console.log('Update');
-    this.props.handleEdit();
+    // console.log(this.refs.textInput);
+    this.refs.text.style.display = 'none';
+    this.refs.textInput.style.display = 'block';
+    this.refs.editButton.style.visibility = 'hidden';
+    this.refs.saveButton.style.display = 'block';
+
+    this.refs.textInput.focus();
   },
+
+  saveComment: function(comment) {
+    console.log('Save');
+
+    comment.preventDefault();
+    var author = this.state.author.trim();
+    var text = this.state.text.trim();
+    // console.log(author);
+    if (!text || !author) {
+      return;
+    }
+    // var id = comment._id;
+    comment = {'_id': id ,'author': author, 'text': text};
+    console.log(comment);
+    // console.log(text);
+    this.refs.text.style.display = 'block';
+    this.refs.textInput.style.display = 'none';
+    this.refs.saveButton.style.display = 'none';
+    this.refs.editButton.style.visibility = 'visible';
+
+
+    this.props.handleEdit(comment);
+  },
+
 
   render: function() {
     // console.log(this);
     return (
-      <div className="comment">
+      <div className="comment" >
         <h3 className="commentAuthor">
-          {this.props.author}
+          {this.state.author}
+          <button className='editButton close' ref='editButton' onClick={this.editComment} aria-hidden="true">
+            <i className="glyphicon glyphicon-pencil" ></i>
+          </button>
+
+          <button type="button" className="close" aria-label="Close" onClick={this.deleteComment} ><span aria-hidden="true">&times;</span></button>
         </h3>
-        <span dangerouslySetInnerHTML={this.rawMarkup(this.props.text)} />
-        <button className='btn btn-default' onClick={this.updateComment}>Edit</button>
-        <button className='btn btn-danger' onClick={this.deleteComment} disabled>Delete</button>
+
+        <div className='commentText'>
+          <span className='view' ref='text' onDoubleClick={this.editComment} dangerouslySetInnerHTML={this.rawMarkup(this.state.text)} />
+
+          <textarea className='edit' ref='textInput' onSubmit={this.editComment} onBlur={this.saveComment} value={this.state.text} onChange={this.handleTextChange}></textarea>
+        </div>
+
+
+        <button className='btn btn-primary btn-sm saveButton' ref='saveButton' onClick={this.saveComment}>Save</button>
+
+
       </div>
     );
   }
@@ -226,8 +289,6 @@ var CommentForm = React.createClass({
     );
   }
 });
-
-
 
 
 ReactDOM.render(
