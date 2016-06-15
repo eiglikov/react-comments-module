@@ -1,4 +1,8 @@
 'use strict';
+// var update = require('react-addons-update');
+// var update = React.addons.update;
+// import update from 'react-addons-update';
+
 // CommentBox
 let CommentBox = React.createClass({
   getInitialState: function(){
@@ -25,7 +29,6 @@ let CommentBox = React.createClass({
     var comments = this.state.data;
     console.log(comment);
     // this.setState({data: comments});
-
     $.ajax({
       url: this.props.url,
       dataType: 'json',
@@ -78,9 +81,26 @@ let CommentBox = React.createClass({
     })
   },
 
+  handleEditReact: function(comment) {
+    console.log('handleEditReact');
+    // console.log(comment);
+
+    this.state.data.forEach((comt, i)=>{
+      if (comt._id == comment._id) console.log('Equal objects!');
+      if (comt._id == comment._id){
+        var newComment = this.state.data.splice(i, 1);
+        newComment[0].text = comment.text;
+        // console.log(newComment[0]);
+        // console.log(comment);
+        // this.setState({data: this.state.data});
+        this.handleEdit(newComment[0]);
+      }
+    })
+  },
+
   handleEdit: function(comment) {
-    console.log('Edit');
-    console.log(comment);
+    console.log('handleEdit');
+    // console.log(comment);
     var comments = this.state.data;
     $.ajax({
       url: this.props.url,
@@ -88,15 +108,14 @@ let CommentBox = React.createClass({
       type: 'PUT',
       data: comment,
       success: function(data) {
+        console.log('success');
         console.log(comment);
         this.setState({data: comments});
       }.bind(this),
       error: function(xhr, status, err){
-
-        // this.setState({data: this.data});
+        console.log('error');
+        this.setState({data: this.data});
         console.error(this.props.url, status, err.toString());
-
-
       }.bind(this)
     });
   },
@@ -114,7 +133,7 @@ let CommentBox = React.createClass({
         <CommentList
           data={this.state.data}
           handleDelete={this.deleteComment}
-          handleEdit={this.handleEdit}
+          handleEdit={this.handleEditReact}
           />
         <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
@@ -129,10 +148,10 @@ let CommentBox = React.createClass({
 
 // CommentList
 let CommentList = React.createClass({
-  getInitialState: function(){
-    return {data: []};
+  handleEdit: function(comment) {
+    // console.log(comment);
+    this.props.handleEdit(comment);
   },
-
   render: function() {
     // console.log(this);
     var commentNodes = this.props.data.map((comment) => {
@@ -140,8 +159,10 @@ let CommentList = React.createClass({
         <Comment
           author={comment.author}
           text={comment.text}
-          key={comment._id} handleDelete={()=>{this.props.handleDelete(comment)}}
-          handleEdit={()=>{this.props.handleEdit(comment)}}
+          key={comment._id}
+          id={comment._id}
+          handleDelete={()=>{this.props.handleDelete(comment)}}
+          handleEdit={this.handleEdit}
           >
         </Comment>
       );
@@ -154,10 +175,16 @@ let CommentList = React.createClass({
   }
 });
 
+
+
 // Comment
 let Comment = React.createClass({
   getInitialState: function() {
-    return {author: this.props.author, text: this.props.text};
+    // console.log(this.props.id);
+    return {
+      _id: this.props.id,
+      author: this.props.author,
+      text: this.props.text};
   },
   handleAuthorChange: function(e) {
     this.setState({author: e.target.value});
@@ -202,17 +229,15 @@ let Comment = React.createClass({
     if (!text || !author) {
       return;
     }
-    // var id = comment._id;
-    comment = {'_id': id ,'author': author, 'text': text};
-    console.log(comment);
-    // console.log(text);
+    // console.log(this.state);
+
     this.refs.text.style.display = 'block';
     this.refs.textInput.style.display = 'none';
     this.refs.saveButton.style.display = 'none';
     this.refs.editButton.style.visibility = 'visible';
 
 
-    this.props.handleEdit(comment);
+    this.props.handleEdit(this.state);
   },
 
 

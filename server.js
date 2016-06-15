@@ -84,10 +84,13 @@ app.delete('/api/comments', function(req, res) {
 app.put('/api/comments', function(req, res) {
   console.log('SERVER PUT');
   console.log(req.body);
-
-  var query = {'author': req.body.author, 'text': req.body.text};
-  CommentModel.findOneAndUpdate(query, function(err, doc){
-    if (err) return res.send(500, { error: err });
+  var comment = req.body;
+  var id = req.body._id;
+  console.log(id);
+  var update = {'author': comment.author, 'text': comment.text};
+  CommentModel.findOneAndUpdate({"_id": id}, update, {new: true}, function(err, doc){
+    if (err) console.error('comment not changed');
+    console.log(doc);
     return console.log("succesfully saved");
   });
 });
