@@ -9,7 +9,9 @@ Simple but realistic comments box that you can drop into a blog, a basic version
 <li> <a href="http://http://mongoosejs.com/">Mongoose</a><br /> </li>
 </ul>
 
-#### How to run
-git clone https://github.com/eiglikov/react-comments-module.git
-npm run watch
-go to localhost:3000
+### How to run
+<ul>
+<li>git clone https://github.com/eiglikov/react-comments-module.git <br /> </li>
+<li>npm run watch<br /> </li>
+<li>go to localhost:3000<br /> </li>
+</ul>
