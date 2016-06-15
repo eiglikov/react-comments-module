@@ -5,12 +5,21 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.4.3",
-    "express": "^4.4.5"
+    "eslint": "^2.12.0",
+    "express": "^4.4.5",
+    "mongoose": "^4.4.20"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^2.12.0",
+    "eslint-plugin-react": "^5.1.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "watch:server": "nodemon --harmony server.js",
+    "watch:client": "live-reload --port 3000 ./",
+    "watch": "npm run watch:server & npm run watch:client",
+    "deploy:complex": "./longdeploy.sh"
   },
   "repository": {
     "type": "git",
@@ -22,12 +31,8 @@
     "comment",
     "example"
   ],
-  "author": "petehunt",
-  "bugs": {
-    "url": "https://github.com/reactjs/react-tutorial/issues"
-  },
   "homepage": "https://github.com/reactjs/react-tutorial",
-  "engines" : {
-    "node" : "0.12.x"
+  "engines": {
+    "node": "0.12.x"
   }
 }

@@ -1,19 +1,28 @@
-/**
-* This file provided by Facebook is for non-commercial testing and evaluation
-* purposes only. Facebook reserves all rights not expressly granted.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-* FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-* ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/Comments');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+
+var commentSchema = null,
+CommentModel = null;
+
+db.once('open', function() {
+  console.log('connected to DB!');
+
+  commentSchema = mongoose.Schema({
+    author: String,
+    text:   String
+  });
+  CommentModel = mongoose.model('Comment', commentSchema);
+});
+
+
+
 var app = express();
 
 var COMMENTS_FILE = path.join(__dirname, 'comments.json');
@@ -36,84 +45,56 @@ app.use(function(req, res, next) {
 });
 
 app.get('/api/comments', function(req, res) {
-  fs.readFile(COMMENTS_FILE, function(err, data) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    res.json(JSON.parse(data));
+  CommentModel.find(function (err, comments) {
+    if (err) return console.error(err);
+    // console.log(comments);
+    res.send(comments);
   });
 });
 
 app.post('/api/comments', function(req, res) {
-  fs.readFile(COMMENTS_FILE, function(err, data) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    var comments = JSON.parse(data);
-    // NOTE: In a real implementation, we would likely rely on a database or
-    // some other approach (e.g. UUIDs) to ensure a globally unique id. We'll
-    // treat Date.now() as unique-enough for our purposes.
-    var newComment = {
-      id: Date.now(),
-      author: req.body.author,
-      text: req.body.text,
-    };
-    comments.push(newComment);
-    fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function(err) {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      res.json(comments);
-    });
+  var newComment = new CommentModel({
+    author: req.body.author,
+    text: req.body.text,
   });
+
+  newComment.save(function(err, comment) {
+    if (err) return console.error(err);
+    console.log(comment);
+  });
+
 });
+
+
 
 app.delete('/api/comments', function(req, res) {
-  // var id = req.params.id;
-  fs.readFile(COMMENTS_FILE, function(err, data) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    var comments = JSON.parse(data);
-    var val = req.body.id;
-    console.log('SERVER DELETE');
+  console.log('SERVER DELETE');
+  var id = req.body._id;
+  console.log(req.body._id);
 
-    comments.forEach((comt, i) => {
-      // console.log(comt.id == val);
-      if (comt.id == val) {
-        console.log('Before ---->\n');
-        console.log(comments);
-        console.log(comments[i]);
-        // console.log(`${comments[i]} - DATA`);
-        // delete comments[i];
-        comments.splice(i, 1);
-
-        // comments.remove(i)
-        console.log('AFTER ---->\n');
-        console.log(comments);
-
-        console.log(`Data ${comt.author} deleted`);
-
-
-        fs.writeFile(COMMENTS_FILE, JSON.stringify(comments), function(err) {
-          if (err) {
-            console.error(err);
-            process.exit(1);
-          }
-          console.log(comments);
-          res.json(comments);
-        });
-      }
-    });
-  });
-
-
-
+  CommentModel.findById(id, function(err, comment) {
+    if(err) return console.error(err);
+    console.log('FOUND THAT SHIT!');
+    console.log(comment);
+  }).remove(function(err) {
+    if(err) return console.error(err);
+  }).exec();
 });
+
+app.put('/api/comments', function(req, res) {
+  console.log('SERVER PUT');
+  console.log(req.body);
+  var comment = req.body;
+  var id = req.body._id;
+  console.log(id);
+  var update = {'author': comment.author, 'text': comment.text};
+  CommentModel.findOneAndUpdate({"_id": id}, update, {new: true}, function(err, doc){
+    if (err) console.error('comment not changed');
+    console.log(doc);
+    return console.log("succesfully saved");
+  });
+});
+
 
 
 app.listen(app.get('port'), function() {
