@@ -18,7 +18,7 @@
     "start": "node server.js",
     "watch:server": "nodemon --harmony server.js",
     "watch:client": "live-reload --port 3000 ./",
-    "watch": "npm run watch:server & npm run watch:client",
+    "watch": "npm i & npm run watch:server & npm run watch:client",
     "deploy:complex": "./longdeploy.sh"
   },
   "repository": {
